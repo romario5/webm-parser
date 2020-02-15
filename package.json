@@ -1,0 +1,21 @@
+{
+  "name": "webm-parser",
+  "version": "0.0.1",
+  "description": "WebM parser",
+  "main": "index.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "build-nc": "node scripts/build-nc.js"
+  },
+  "keywords": [
+    "WebM",
+    "Parser",
+    "JS"
+  ],
+  "author": "Roman Muravchuk",
+  "license": "MIT",
+  "devDependencies": {
+    "rollup": "^1.31.1",
+    "rollup-plugin-babel-minify": "^9.1.1"
+  }
+}
