@@ -1,5 +1,7 @@
 import { log, warn } from "./logging"
 import { printInHex } from './helpers';
+import VInt from './vint';
+import { TYPE_STRING, TYPE_INT, TYPE_UINT, TYPE_BINARY, TYPE_MASTER } from './constants';
 
 
 export default class WebMElement
@@ -8,41 +10,49 @@ export default class WebMElement
 
         Object.defineProperty(this, '_name', {
             enumerable: false,
+            writable: true,
             value: name.slice(0, 1).toLowerCase() + name.slice(1)
         })
 
         Object.defineProperty(this, '_type', {
             enumerable: false,
+            writable: true,
             value: type || WebM.TYPE_UINT
         })
 
         Object.defineProperty(this, '_position', {
             enumerable: false,
+            writable: true,
             value: undefined
         })
 
         Object.defineProperty(this, '_length', {
             enumerable: false,
+            writable: true,
             value: undefined
         })
 
         Object.defineProperty(this, '_contentLength', {
             enumerable: false,
+            writable: true,
             value: undefined
         })
 
         Object.defineProperty(this, '_availableElements', {
             enumerable: false,
+            writable: true,
             value: []
         })
 
         Object.defineProperty(this, 'is' + name, {
             enumerable: false,
+            writable: true,
             value: true
         })
 
         Object.defineProperty(this, 'EBML_ID', {
             enumerable: false,
+            writable: true,
             value: []
         })
     }
@@ -92,6 +102,7 @@ export default class WebMElement
         
         // Set meta-data of the element.
         this._position = offset - 1
+        if (this._position < 0) this._position = 0;
         offset += this.EBML_ID.length
         let contentSize = VInt.parse(bytes.slice(offset, offset + 8))
         offset += contentSize.bytesCount
@@ -102,24 +113,24 @@ export default class WebMElement
         let sliceLen = contentSize.value >= 0 ? contentSize.value : bytes.length - offset
         switch(this._type)
         {
-            case WebM.TYPE_STRING:
+            case TYPE_STRING:
                 this.value = new TextDecoder("utf-8")
                 .decode(bytes.slice(offset, offset + sliceLen))
                 break
                 
-            case WebM.TYPE_INT:
+            case TYPE_INT:
                 this.value = VInt.parse(bytes.slice(offset, offset + sliceLen)).value
                 break
 
-            case WebM.TYPE_UINT:
+            case TYPE_UINT:
                 this.value = VInt.parse(bytes.slice(offset, offset + sliceLen)).value
                 break
 
-            case WebM.TYPE_BINARY:
+            case TYPE_BINARY:
                 this.value = bytes.slice(offset, offset + sliceLen)
                 break
 
-            case WebM.TYPE_MASTER:
+            case TYPE_MASTER:
                 let maxTries = 1000
                 let elements = this._availableElements.slice(0)
                 let totalParsed = 0
@@ -128,7 +139,7 @@ export default class WebMElement
                     
                     for (let i = 0, len = elements.length; i < len; i++) {
                         let el = new elements[i]()
-                        if (el.parse(bytes, offset, false)) {
+                        if (el.parse(bytes, offset, true)) {
                             elements.splice(i, 1).slice(0)
                             this[el._name] = el
                             offset += el._length

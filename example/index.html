@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WebM Parser example</title>
+        <script src="../dst/webm-parser.min.js"></script>
+    </head>
+    <body>
+
+        <video src="" id="video" style="background-color: #eee;"></video>
+        <button type="button" onclick="startCapture()">Start</button>
+
+        <script>
+
+            var video = document.getElementById('video');
+
+
+            
+            function startCapture() {
+
+                // Capturing options
+                var options = {
+                    video: {
+                        cursor: "always",
+                        height: 480
+                    },
+                    audio: true
+                };
+
+
+                navigator.mediaDevices.getDisplayMedia(options)
+                    .then(stream => {
+
+                        video.srcObject = stream;
+                        video.play();
+
+                        // Create recorder
+                        let recorder = new MediaRecorder(stream, {
+                            videoBitsPerSecond : 500000,
+                            mimeType : 'video/webm; codecs=vp8,opus'
+                        });
+
+                        // Handle video stream parts
+                        recorder.ondataavailable = async event => {   
+                            let chunk = event.data;
+
+                            chunk.arrayBuffer().then(buffer => {
+                                let bytes = new Uint8Array(buffer);
+                                let webM = new WebM();
+                                webM.parse(bytes);
+
+                                console.log(webM);
+                            });
+
+                            recorder.ondataavailable = null
+                        }
+
+                        // Start recording
+                        recorder.start(1000)      
+                    })
+                    .catch(e => {
+                        console.error(e)
+                    });
+            }    
+            
+        </script>
+
+    </body>
+</html>

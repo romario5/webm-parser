@@ -1,3 +1,4 @@
+import { log } from './logging';
 /**
  * Prints array of unsigned integers as hex
  * @param {Uint8Array} bytes 
@@ -9,7 +10,7 @@ export function printInHex(bytes, prefix) {
     for (let i = 0, len = bytes.length; i < len; i++) {
         str += bytes[i].toString(16).padStart(2, '0').toUpperCase() + ' ';
     }
-    WebM.log(prefix, str);
+    log(prefix, str);
 }
 
 

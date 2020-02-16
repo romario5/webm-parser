@@ -1,5 +1,7 @@
 import WebMElement from '../element'
 import { TYPE_MASTER, TYPE_UINT, TYPE_BINARY } from "../constants"
+import { intToBytes } from '../helpers';
+import VInt from '../vint';
 
 
 export class WebMCluster extends WebMElement
@@ -98,7 +100,7 @@ export class WebMClusterTimestamp extends WebMElement
 
     setValue(value) {
         this.value = value
-        this._contentLength = Math.max(WebM.intToBytes(value).length, 1)
+        this._contentLength = Math.max(intToBytes(value).length, 1)
         this._length = this.EBML_ID.length + 1 + this._contentLength
     }
 }
